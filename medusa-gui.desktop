@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Medusa Gui
+Comment=A graphical front-end for the medusa bruteforcer client
+Exec=medusa-gui
+Icon=/usr/local/share/medusa-gui/medusa-gui-icon.xpm
+Type=Application
+Categories=Application;Network
+Terminal=false

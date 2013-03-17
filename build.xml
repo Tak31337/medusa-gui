@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<project name="Medusa-Gui" default="compile" basedir=".">
+    <description>
+        A graphical user interface for the Medusa brute-forcing utility.
+    </description>
+
+    <property name="src" location="src" />
+    <property name="build" location="bin" />
+    <property name="dist" location="dist" />
+    <property name="dep" location="lib" />
+
+    <condition property="arch" value="x86" else="x86_64">
+        <equals arg1="i386" arg2="${os.arch}" />
+    </condition>
+
+    <condition property="swt.os" value="org.eclipse.swt.gtk.linux.${arch}_3.6.1.v3655c.jar">
+        <os family="unix"/>
+    </condition>
+
+    <condition property="swt.os" value="org.eclipse.swt.win32.win32.${arch}_3.6.1.v3655c.jar">
+        <os family="windows"/>
+    </condition>
+
+    <condition property="swt.os" value="org.eclipse.swt.cocoa.macosx.x86_64_3.6.1.v3655c.jar" else="org.eclipse.swt.cocoa.macosx_3.6.1.v3655c.jar">
+        <and>
+            <os family="mac"/>
+            <not>
+                <equals arg1="i386" arg2="${os.arch}" />
+            </not>
+        </and>
+    </condition>
+
+
+    <target name="init" description="Initialize build directory.">
+        <mkdir dir="${build}" />
+        <copy file="lib/swt/${swt.os}" todir="lib/" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.core.commands_3.6.0.I20100512-1500.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.core.runtime_3.6.0.v20100505.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.equinox.common_3.6.0.v20100503.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.jface.text_3.6.1.r361_v20100825-0800.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.jface_3.6.1.M20100825-0800.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.osgi_3.6.1.R36x_v20100806.jar" />
+        <unzip dest="${build}" src="${dep}/org.eclipse.text_3.5.0.v20100601-1300.jar" />
+        <unzip dest="${build}" src="${dep}/${swt.os}" />
+        <copy file="medusa-gui-icon.xpm" todir="${build}" />
+    </target>
+
+    <target name="compile" depends="init" description="Compile medusa-gui source.">
+        <javac srcdir="${src}" destdir="${build}" optimize="on" debug="off" includeantruntime="true">
+            <classpath>
+                <pathelement location="${dep}/org.eclipse.core.commands_3.6.0.I20100512-1500.jar" />
+                <pathelement location="${dep}/org.eclipse.core.runtime_3.6.0.v20100505.jar" />
+                <pathelement location="${dep}/org.eclipse.equinox.common_3.6.0.v20100503.jar" />
+                <pathelement location="${dep}/org.eclipse.jface.text_3.6.1.r361_v20100825-0800.jar" />
+                <pathelement location="${dep}/org.eclipse.jface_3.6.1.M20100825-0800.jar" />
+                <pathelement location="${dep}/org.eclipse.osgi_3.6.1.R36x_v20100806.jar" />
+                <pathelement location="${dep}/org.eclipse.text_3.5.0.v20100601-1300.jar" />
+                <pathelement location="${dep}/${swt.os}" />
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="dist" depends="compile" description="Generate distribution package.">
+        <jar destfile="${build}/medusa-gui.jar" basedir="${build}" includes="**/*.class, **/*.so, **/*.properties, **/*.xpm">
+            <manifest>
+                <attribute name="Main-Class" value="org.taksmind.medusagui.MedusaGui" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="compile" description="Run the gui.">
+        <java classname="org.taksmind.medusagui.MedusaGui">
+            <classpath>
+                <pathelement location="${dep}/org.eclipse.core.commands_3.6.0.I20100512-1500.jar" />
+                <pathelement location="${dep}/org.eclipse.core.runtime_3.6.0.v20100505.jar" />
+                <pathelement location="${dep}/org.eclipse.equinox.common_3.6.0.v20100503.jar" />
+                <pathelement location="${dep}/org.eclipse.jface.text_3.6.1.r361_v20100825-0800.jar" />
+                <pathelement location="${dep}/org.eclipse.jface_3.6.1.M20100825-0800.jar" />
+                <pathelement location="${dep}/org.eclipse.osgi_3.6.1.R36x_v20100806.jar" />
+                <pathelement location="${dep}/org.eclipse.text_3.5.0.v20100601-1300.jar" />
+                <pathelement location="${dep}/${swt.os}" />
+                <pathelement path="${build}/" />
+            </classpath>
+        </java>
+    </target>
+    
+    <target name="clean" description="Clean the path of generated file.">
+        <delete dir="${build}" />
+        <delete file="${dep}/${swt.os}" />
+        <delete file="medusa-gui.jar" />
+    </target>
+	
+	<target name="install" depends="dist" description="Install Medusa-GUI">
+		<mkdir dir="/usr/local/share/medusa-gui/" />
+		<copy file="medusa-gui-icon.xpm" todir="/usr/local/share/medusa-gui/" />
+		<copy file="${build}/medusa-gui.jar" todir="/usr/local/share/medusa-gui/" />
+		<copy file="medusa-gui.desktop" todir="/usr/share/applications" />
+		<chmod file="/usr/local/share/medusa-gui/medusa-gui.jar" perm="+x" />
+		<symlink link="/usr/local/bin/medusa-gui" resource="/usr/local/share/medusa-gui/medusa-gui.jar" />
+	</target>
+	
+	<target name="remove" depends="clean" description="Uninstall Medusa-GUI">
+	    <delete file="/usr/local/share/medusa-gui/medusa-gui.jar" />
+    	<delete file="/usr/local/bin/medusa-gui" />
+    	<delete file="/usr/local/share/medusa-gui/medusa-gui-icon.xpm" />
+    	<delete file="/usr/share/applications/medusa-gui.desktop" />
+	</target>
+</project>
+

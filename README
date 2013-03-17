@@ -1,0 +1,29 @@
+Medusa Gui will automatically detect your operating system and compile for it.
+
+Commands are as follow
+
+$ ant dist    //creates medusa-gui.jar under bin/
+$ ant clean   //cleans up compiled files
+# ant install //installs the Medusa-GUI
+# ant remove  //uninstalls the Medusa-GUI
+
+-----------------------------
+
+How to install:
+Run the following command as root -
+
+# ant install
+
+and the Medusa-GUI will be installed to the /usr/local directory.
+
+-----------------------------
+
+How to uninstall:
+
+# ant remove
+
+NOTE:
+JAVA_HOME has to be set to your JDK
+
+JAVA_HOME=/usr/lib/default-java
+export JAVA_HOME
